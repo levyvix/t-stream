@@ -79,6 +79,18 @@ def save_config(client, player):
         f.write("\n")
 
 
+def stream_out_dir():
+    configured = os.environ.get("T_STREAM_OUT_DIR")
+    if configured:
+        out_dir = Path(configured).expanduser()
+    else:
+        xdg_cache_home = os.environ.get("XDG_CACHE_HOME")
+        cache_root = Path(xdg_cache_home).expanduser() if xdg_cache_home else Path.home() / ".cache"
+        out_dir = cache_root / "t-stream" / "downloads"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return str(out_dir)
+
+
 def run_config_ui():
     available_clients = available_options(SUPPORTED_CLIENTS)
     available_players = available_options(SUPPORTED_PLAYERS)
@@ -220,7 +232,15 @@ def handle_config_command(args):
 
 def stream(mag_url):
     client, player = parse_config()
-    subprocess.run([client, mag_url, f"--{player}"])
+    cmd = [client, mag_url, f"--{player}"]
+    if client == "webtorrent":
+        cmd.extend(["--out", stream_out_dir()])
+    completed = subprocess.run(cmd)
+    if completed.returncode != 0:
+        print(
+            "\nStreaming client exited with an error. "
+            "If you see write failures, configure a writable directory with T_STREAM_OUT_DIR."
+        )
 
 
 console = Console()
