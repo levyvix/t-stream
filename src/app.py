@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from rich.console import Console
@@ -79,7 +80,7 @@ def save_config(client, player):
         f.write("\n")
 
 
-def stream_out_dir():
+def stream_out_base_dir():
     configured = os.environ.get("T_STREAM_OUT_DIR")
     if configured:
         out_dir = Path(configured).expanduser()
@@ -233,9 +234,18 @@ def handle_config_command(args):
 def stream(mag_url):
     client, player = parse_config()
     cmd = [client, mag_url, f"--{player}"]
+    session_out_dir = None
     if client == "webtorrent":
-        cmd.extend(["--out", stream_out_dir()])
-    completed = subprocess.run(cmd)
+        base_dir = stream_out_base_dir()
+        session_out_dir = tempfile.mkdtemp(prefix="session-", dir=base_dir)
+        cmd.extend(["--out", session_out_dir])
+
+    try:
+        completed = subprocess.run(cmd)
+    finally:
+        if session_out_dir:
+            shutil.rmtree(session_out_dir, ignore_errors=True)
+
     if completed.returncode != 0:
         print(
             "\nStreaming client exited with an error. "
