@@ -70,6 +70,18 @@ cd t-stream
 bash setup.sh
 ```
 
+## Development Checks
+
+Install and run pre-commit locally:
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
+GitHub Actions runs the same pre-commit hooks on every push and pull request.
+
 ## Uninstall
 
 ```bash
