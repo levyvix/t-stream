@@ -1,17 +1,16 @@
 #! /usr/bin/python
-import unicodedata
 import re
+import unicodedata
 from urllib.parse import parse_qs, unquote_plus, urlparse
 
 import requests
 from bs4 import BeautifulSoup
 
+
 def get_json(soup):
     table = soup.find("table", id="searchResult") or soup.table
 
-    json_obj = {
-        "movie_info":[]
-    }
+    json_obj = {"movie_info": []}
 
     if not table:
         return json_obj
@@ -46,9 +45,7 @@ def get_json(soup):
             title = fallback_title if fallback_title else "Unknown title"
 
         details_text = (
-            row.select_one(".detDesc")
-            or row.find("font", class_="detDesc")
-            or row.find("font")
+            row.select_one(".detDesc") or row.find("font", class_="detDesc") or row.find("font")
         )
         size = "Unknown"
         if details_text:
@@ -79,17 +76,20 @@ def get_json(soup):
             if not leeches:
                 leeches = "0"
 
-        json_obj["movie_info"].append({
-            "title": title,
-            "magnet_url": magnet_link["href"],
-            "seeders": seeders,
-            "leeches": leeches,
-            "size": size,
-        })
+        json_obj["movie_info"].append(
+            {
+                "title": title,
+                "magnet_url": magnet_link["href"],
+                "seeders": seeders,
+                "leeches": leeches,
+                "size": size,
+            }
+        )
 
     return json_obj
 
-def pirate(query = None):
+
+def pirate(query=None):
     if not query:
         url = "https://tpb.party/top/200"
     else:
@@ -98,6 +98,6 @@ def pirate(query = None):
     if res.status_code != 200:
         raise ValueError("Ops didn't get valid response")
     content = res.content
-    soup = BeautifulSoup(content , "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     obj = get_json(soup)
     return obj

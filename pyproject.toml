@@ -10,3 +10,15 @@ dependencies = [
     "rich==12.2.0",
 ]
 
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pyright]
+include = ["src"]
+pythonVersion = "3.8"
+typeCheckingMode = "basic"
+reportMissingTypeStubs = false

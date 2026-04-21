@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
 
-from piratebay import *
+from piratebay import pirate
 from spinner import Spinner, add_cursor
 
 SUPPORTED_PLAYERS = ["mpv", "vlc"]
@@ -178,13 +178,17 @@ def run_config_non_interactive(selected_client=None, selected_player=None):
     player = selected_player or current_player
 
     if client not in available_clients:
+        available_clients_text = ", ".join(available_clients)
         print(
-            f"Client '{client}' not found in PATH. Available on this machine: {', '.join(available_clients)}"
+            f"Client '{client}' not found in PATH. "
+            f"Available on this machine: {available_clients_text}"
         )
         return 1
     if player not in available_players:
+        available_players_text = ", ".join(available_players)
         print(
-            f"Player '{player}' not found in PATH. Available on this machine: {', '.join(available_players)}"
+            f"Player '{player}' not found in PATH. "
+            f"Available on this machine: {available_players_text}"
         )
         return 1
 

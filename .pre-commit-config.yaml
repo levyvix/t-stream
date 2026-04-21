@@ -8,3 +8,28 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
       - id: check-ast
+  - repo: local
+    hooks:
+      - id: ruff-lint
+        name: ruff lint
+        entry: ruff check --fix
+        language: python
+        types: [python]
+        additional_dependencies: [ruff==0.6.9]
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format
+        language: python
+        types: [python]
+        additional_dependencies: [ruff==0.6.9]
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: python
+        pass_filenames: false
+        additional_dependencies:
+          - pyright==1.1.389
+          - rich==12.2.0
+          - requests==2.27.1
+          - beautifulsoup4==4.11.1
+          - bs4==0.0.1

@@ -98,6 +98,12 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+The hooks include:
+
+- `ruff lint` (`ruff check --fix`)
+- `ruff format` (`ruff format`)
+- `pyright`
+
 GitHub Actions runs the same pre-commit hooks on every push and pull request.
 
 ## Uninstall

@@ -1,19 +1,26 @@
 #! /usr/bin/python
 
-import sys
-import time
-import threading
 import random
+import sys
+import threading
+import time
 
-spinners = [ ["⣾","⣽","⣻","⢿","⡿","⣟","⣯","⣷"] , ["✶","✸","✹", "✺", "✹", "✷"] , ["⠄","⠆","⠇","⠋","⠙", "⠸","⠰","⠠","⠰","⠸","⠙","⠋","⠇","⠆"]]
+spinners = [
+    ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"],
+    ["✶", "✸", "✹", "✺", "✹", "✷"],
+    ["⠄", "⠆", "⠇", "⠋", "⠙", "⠸", "⠰", "⠠", "⠰", "⠸", "⠙", "⠋", "⠇", "⠆"],
+]
 
 fav = random.choice(spinners)
+
 
 def remove_cursor():
     sys.stdout.write("\033[?25l")
 
+
 def add_cursor():
     sys.stdout.write("\033[?25h")
+
 
 class Spinner:
     busy = False
@@ -22,11 +29,13 @@ class Spinner:
     @staticmethod
     def spinning_cursor():
         while 1:
-            for cursor in fav: yield cursor
+            for cursor in fav:
+                yield cursor
 
     def __init__(self, delay=None):
         self.spinner_generator = self.spinning_cursor()
-        if delay and float(delay): self.delay = delay
+        if delay and float(delay):
+            self.delay = delay
 
     def spinner_task(self):
         remove_cursor()
@@ -35,7 +44,7 @@ class Spinner:
             sys.stdout.write(next(self.spinner_generator))
             sys.stdout.flush()
             time.sleep(self.delay)
-            sys.stdout.write('\b')
+            sys.stdout.write("\b")
             sys.stdout.flush()
         sys.stdout.write("\u001b[0m")
         add_cursor()
