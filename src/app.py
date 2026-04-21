@@ -43,13 +43,13 @@ def parse_config():
 
     with open(config_path) as f:
         config = json.loads(f.read())
-    
+
     if config["config"]["player"] and config["config"]["client"]:
         if config["config"]["player"] in players and config["config"]["client"] in clients:
             return (  config["config"]["client"] , config["config"]["player"] )
-    
+
     return default_value
-        
+
 def stream(mag_url):
     client , player = parse_config()
     subprocess.run([client , mag_url , f"--{player}" ])
@@ -90,8 +90,3 @@ except KeyboardInterrupt:
 
 print("Enjoy! Less seeds may take more time\nStreaming will start after 1% of downloading")
 stream(mag_url)
-
-
-
-
-

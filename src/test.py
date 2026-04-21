@@ -11,10 +11,9 @@ def parse_config():
 
     with open(config_path) as f:
         config = json.loads(f.read())
-    
+
     if config["config"]["player"] and config["config"]["client"]:
         if config["config"]["player"] in players and config["config"]["client"] in clients:
             return ( config["config"]["player"] , config["config"]["client"] )
-    
+
     return default_value
-        
