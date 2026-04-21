@@ -9,6 +9,7 @@ INSTALL_ROOT="${HOME}/.local/share/${REPO_NAME}"
 VENV_DIR="${INSTALL_ROOT}/.venv"
 BIN_DIR="${HOME}/.local/bin"
 BIN_PATH="${BIN_DIR}/t-stream"
+UV_BIN=""
 
 info() {
   printf '[t-stream] %s\n' "$1"
@@ -61,12 +62,26 @@ install_node_tools() {
 install_python_deps() {
   need_cmd python3
 
-  info "Creating virtual environment"
-  python3 -m venv "$VENV_DIR"
+  if command -v uv >/dev/null 2>&1; then
+    UV_BIN="$(command -v uv)"
+  else
+    info "uv not found, installing with system python"
+    python3 -m pip install --user --upgrade uv >/dev/null 2>&1 || {
+      info "pip unavailable, bootstrapping pip via ensurepip"
+      python3 -m ensurepip --upgrade >/dev/null 2>&1
+      python3 -m pip install --user --upgrade uv >/dev/null 2>&1
+    }
+    export PATH="$HOME/.local/bin:$PATH"
+    if command -v uv >/dev/null 2>&1; then
+      UV_BIN="$(command -v uv)"
+    else
+      err "Failed to install uv with system python"
+      exit 1
+    fi
+  fi
 
-  info "Installing Python dependencies"
-  "$VENV_DIR/bin/pip" install --upgrade pip >/dev/null
-  "$VENV_DIR/bin/pip" install -r "$INSTALL_ROOT/requirements.txt" >/dev/null
+  info "Creating virtual environment and installing Python dependencies with uv"
+  "$UV_BIN" sync --project "$INSTALL_ROOT" >/dev/null
 }
 
 install_repo() {

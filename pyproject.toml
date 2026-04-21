@@ -1,0 +1,12 @@
+[project]
+name = "t-stream"
+version = "0.1.0"
+description = "Stream torrents from your terminal with an interactive search flow."
+requires-python = ">=3.8"
+dependencies = [
+    "beautifulsoup4==4.11.1",
+    "bs4==0.0.1",
+    "requests==2.27.1",
+    "rich==12.2.0",
+]
+

@@ -26,7 +26,7 @@ t-stream "The Matrix"
 
 - Clones `levyvix/t-stream` into `~/.local/share/t-stream`
 - Installs Node CLI dependencies: `peerflix`, `webtorrent-cli` (no `sudo npm`; falls back to `npm` prefix `~/.local`)
-- Creates a Python virtual environment and installs `requirements.txt`
+- Installs `uv` (via system `python3` if needed), then creates a Python virtual environment and syncs dependencies from `pyproject.toml`
 - Installs a launcher at `~/.local/bin/t-stream`
 - Adds `~/.local/bin` to `PATH` in `.bashrc` and `.zshrc` if needed
 
@@ -34,13 +34,31 @@ t-stream "The Matrix"
 
 - `git`
 - `bash`
-- `python3` (with `venv` support)
+- `python3`
 - `npm` (Node.js)
 - A player supported by your selected client (`mpv` or `vlc`)
 
 ## Configuration
 
-Edit `config.json`:
+Use the interactive config command:
+
+```bash
+t-stream config
+```
+
+For scripts/automation, use non-interactive mode:
+
+```bash
+t-stream config --non-interactive --client webtorrent --player mpv
+```
+
+You can also pass only one value and keep the other from current config:
+
+```bash
+t-stream config --non-interactive --player vlc
+```
+
+Or edit `config.json` manually:
 
 ```json
 {
