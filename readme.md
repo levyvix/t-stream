@@ -1,23 +1,83 @@
-## t-stream 
-Stream your favorite torrent in your terminal
+# t-stream
 
-![video](./eg.gif)
-### How to use ?
-- Install all dependecy and library by running`setup.sh`.
-- restart your terminal
-- run `t-stream` 
-- you can pass torrent name in command line argument in `t-stream`
+Stream torrents from your terminal with an interactive search flow.
 
-### Configure
-- You can set your player and torrent-client in `config.json` file.
-- Only support mpv or vlc and webtorrent or peerflix.
-- default player is `mpv` and client in `webtorrent`.
+![Demo](./eg.gif)
 
-### Dependencies
-- [webtorrent-cli](https://github.com/webtorrent/webtorrent-cli)
-- [peerflix](https://github.com/mafintosh/peerflix)
+## Quick Install (main branch)
 
+```bash
+curl -fSsL https://raw.githubusercontent.com/levyvix/t-stream/main/setup.sh | bash
+```
 
-### Note
-`mpv` is default player for linux based OS .
-If you are on windows you have to manually setup and install all requirement files.
+After install, restart your shell (or reload rc file), then run:
+
+```bash
+t-stream
+```
+
+You can also pass a search query directly:
+
+```bash
+t-stream "The Matrix"
+```
+
+## What The Installer Does
+
+- Clones `levyvix/t-stream` into `~/.local/share/t-stream`
+- Installs Node CLI dependencies: `peerflix`, `webtorrent-cli` (no `sudo npm`; falls back to `npm` prefix `~/.local`)
+- Creates a Python virtual environment and installs `requirements.txt`
+- Installs a launcher at `~/.local/bin/t-stream`
+- Adds `~/.local/bin` to `PATH` in `.bashrc` and `.zshrc` if needed
+
+## Requirements
+
+- `git`
+- `bash`
+- `python3` (with `venv` support)
+- `npm` (Node.js)
+- A player supported by your selected client (`mpv` or `vlc`)
+
+## Configuration
+
+Edit `config.json`:
+
+```json
+{
+  "config": {
+    "player": "mpv",
+    "client": "webtorrent"
+  }
+}
+```
+
+Supported values:
+
+- `player`: `mpv`, `vlc`
+- `client`: `webtorrent`, `peerflix`
+
+Default fallback is `webtorrent` + `mpv` when config is missing or invalid.
+
+## Update
+
+Re-run the same install command to pull the latest `main` and refresh dependencies.
+
+## Manual Install
+
+```bash
+git clone https://github.com/levyvix/t-stream.git
+cd t-stream
+bash setup.sh
+```
+
+## Uninstall
+
+```bash
+rm -rf ~/.local/share/t-stream ~/.local/bin/t-stream
+```
+
+If you want, remove this PATH line from your shell rc file:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
