@@ -10,7 +10,7 @@ Stream torrents from your terminal with an interactive search flow.
 curl -fSsL https://raw.githubusercontent.com/levyvix/t-stream/main/setup.sh | bash
 ```
 
-After install, restart your shell (or reload rc file), then run:
+After install, restart your shell, then run:
 
 ```bash
 t-stream

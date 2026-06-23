@@ -70,7 +70,7 @@ def parse_config():
 
 
 def available_options(options):
-    return [option for option in options if shutil.which(option)]
+    return [option for option in options if shutil.which(str(option))]
 
 
 def save_config(client, player):

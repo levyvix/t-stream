@@ -96,8 +96,8 @@ def pirate(query=None):
         url = f"https://tpb.party/search/{query}"
     res = requests.get(url)
     if res.status_code != 200:
-        raise ValueError("Ops didn't get valid response")
-    content = res.content
+        raise ValueError("Oops! Didn't get valid response")
+    content = str(res.content)
     soup = BeautifulSoup(content, "html.parser")
     obj = get_json(soup)
     return obj
