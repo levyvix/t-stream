@@ -236,13 +236,17 @@ def stream(mag_url):
         cmd.extend(["--out", session_out_dir])
 
     try:
-        subprocess.run(cmd)
-    except subprocess.CalledProcessError as e:
-        print(f"Error: {e}")
-        return 1
+        completed = subprocess.run(cmd)
     finally:
         if session_out_dir:
             shutil.rmtree(session_out_dir, ignore_errors=True)
+
+    if completed.returncode != 0:
+        print(
+            "\nStreaming client exited with an error. "
+            "If you see write failures, configure a writable directory with T_STREAM_OUT_DIR."
+        )
+        return 1
 
 
 console = Console()

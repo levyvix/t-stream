@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 from urllib.parse import parse_qs, unquote_plus, urlparse
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 SIZE_RE = re.compile(r"Size\s+(.+?)(?:,|$)")
 SIZE_FALLBACK_RE = re.compile(r"(\d+(?:\.\d+)?\s*(?:[KMGTP]i?B))", re.IGNORECASE)
@@ -47,7 +47,7 @@ def parse_peers(columns) -> Tuple[str, str]:
 def parse_results(soup: BeautifulSoup) -> dict:
     table = soup.find("table", id="searchResult") or soup.table
     results = {"movie_info": []}
-    if table is None or not hasattr(table, "find_all"):
+    if not isinstance(table, Tag):
         return results
 
     for row in table.find_all("tr"):
