@@ -3,3 +3,5 @@ env
 src/__pycache__
 .codex
 build/
+.reports/
+.cursor/
