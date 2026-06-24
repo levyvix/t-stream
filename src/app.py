@@ -19,12 +19,8 @@ SUPPORTED_CLIENTS = ["webtorrent", "peerflix"]
 DEFAULT_CONFIG = ("webtorrent", "mpv")
 
 
-def app_dir_path():
-    return "/".join(os.path.realpath(__file__).split("/")[:-2])
-
-
 def config_path():
-    return os.path.join(app_dir_path(), "config.json")
+    return Path(__file__).resolve().parent.parent / "config.json"
 
 
 def write_table(movie_list):
@@ -53,19 +49,20 @@ def greet_bye():
 
 def parse_config():
     path = config_path()
-
-    if not Path(path).is_file():
+    if not path.is_file():
         return DEFAULT_CONFIG
 
-    with open(path) as f:
-        config = json.loads(f.read())
+    try:
+        with open(path) as f:
+            config = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        print("Invalid config file. Please check the file and try again. Using default config.")
+        return DEFAULT_CONFIG
 
-    player = config.get("config", {}).get("player")
-    client = config.get("config", {}).get("client")
-
+    cfg = config.get("config", {})
+    player, client = cfg.get("player"), cfg.get("client")
     if player in SUPPORTED_PLAYERS and client in SUPPORTED_CLIENTS:
         return (client, player)
-
     return DEFAULT_CONFIG
 
 
@@ -75,9 +72,7 @@ def available_options(options):
 
 def save_config(client, player):
     payload = {"config": {"player": player, "client": client}}
-    with open(config_path(), "w") as f:
-        json.dump(payload, f, indent=4)
-        f.write("\n")
+    config_path().write_text(json.dumps(payload, indent=4) + "\n")
 
 
 def stream_out_base_dir():
@@ -92,17 +87,23 @@ def stream_out_base_dir():
     return str(out_dir)
 
 
-def run_config_ui():
-    available_clients = available_options(SUPPORTED_CLIENTS)
-    available_players = available_options(SUPPORTED_PLAYERS)
-
-    if not available_clients:
+def available_tools():
+    clients = available_options(SUPPORTED_CLIENTS)
+    players = available_options(SUPPORTED_PLAYERS)
+    if not clients:
         print("No supported torrent clients found. Install one of: webtorrent, peerflix")
-        return 1
-
-    if not available_players:
+        return None
+    if not players:
         print("No supported players found. Install one of: mpv, vlc")
+        return None
+    return clients, players
+
+
+def run_config_ui():
+    tools = available_tools()
+    if not tools:
         return 1
+    available_clients, available_players = tools
 
     current_client, current_player = parse_config()
     default_client = current_client if current_client in available_clients else available_clients[0]
@@ -167,16 +168,10 @@ def parse_config_args(args):
 
 
 def run_config_non_interactive(selected_client=None, selected_player=None):
-    available_clients = available_options(SUPPORTED_CLIENTS)
-    available_players = available_options(SUPPORTED_PLAYERS)
-
-    if not available_clients:
-        print("No supported torrent clients found. Install one of: webtorrent, peerflix")
+    tools = available_tools()
+    if not tools:
         return 1
-
-    if not available_players:
-        print("No supported players found. Install one of: mpv, vlc")
-        return 1
+    available_clients, available_players = tools
 
     current_client, current_player = parse_config()
 
@@ -241,16 +236,13 @@ def stream(mag_url):
         cmd.extend(["--out", session_out_dir])
 
     try:
-        completed = subprocess.run(cmd)
+        subprocess.run(cmd)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        return 1
     finally:
         if session_out_dir:
             shutil.rmtree(session_out_dir, ignore_errors=True)
-
-    if completed.returncode != 0:
-        print(
-            "\nStreaming client exited with an error. "
-            "If you see write failures, configure a writable directory with T_STREAM_OUT_DIR."
-        )
 
 
 console = Console()
@@ -274,22 +266,27 @@ def main():
         print("  Finding torrents", end="\r")
 
         with Spinner():
-            if query == "1":
-                movie_list = pirate()["movie_info"]
-            else:
-                movie_list = pirate(query=query)["movie_info"]
+            movie_list = pirate(None if query == "1" else query)["movie_info"]
 
-        if len(movie_list) == 0:
+        if not movie_list:
             greet_bye()
             return 1
 
         write_table(movie_list)
 
         movie_ind = Prompt.ask("Select your fav", default="1")
-        if int(movie_ind) >= len(movie_list):
-            mag_url = movie_list[-1]["magnet_url"]
-        else:
-            mag_url = movie_list[int(movie_ind) - 1]["magnet_url"]
+        if not movie_ind.isdigit():
+            print("Invalid input. Please enter a number.")
+            greet_bye()
+            return 1
+
+        selected = int(movie_ind)
+        if selected > len(movie_list) or selected < 1:
+            print("Invalid input. Please enter a number within the range of the list.")
+            greet_bye()
+            return 1
+
+        mag_url = movie_list[selected - 1]["magnet_url"]
 
     except KeyboardInterrupt:
         add_cursor()
